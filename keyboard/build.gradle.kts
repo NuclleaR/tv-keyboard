@@ -48,7 +48,6 @@ dependencies {
   "ktlintRuleSet"(libs.ktlint.compose)
   implementation(platform(libs.compose.bom))
   api(libs.compose.ui)
-  api(libs.tv.material)
   implementation(libs.compose.foundation)
   implementation(libs.coroutines.core)
   implementation(libs.compose.ui.tooling.preview)
@@ -61,6 +60,7 @@ dependencies {
   testImplementation(libs.androidx.test.junit)
   testImplementation(libs.compose.ui.test.junit4)
   testImplementation(libs.compose.ui.test.manifest)
+  testImplementation(libs.tv.material)
 }
 
 // JitPack builds a tag as com.github.NuclleaR:tv-keyboard:<tag>

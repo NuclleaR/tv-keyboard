@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 
 /**
  * A fixed grid of same-sized keys, laid out in one pass: each key's position follows from its index, so there is
@@ -15,7 +16,9 @@ internal fun KeyboardGrid(
   keys: List<KeyboardKey>,
   reservedRows: Int,
   keysPerRow: Int,
-  style: KeyboardStyle,
+  keySize: Dp,
+  gap: Dp,
+  outerPadding: Dp,
   modifier: Modifier = Modifier,
   key: @Composable (index: Int, key: KeyboardKey) -> Unit,
 ) {
@@ -23,9 +26,9 @@ internal fun KeyboardGrid(
     content = { keys.forEachIndexed { index, item -> key(index, item) } },
     modifier = modifier,
   ) { measurables, _ ->
-    val keyPx = style.keySize.roundToPx()
-    val gapPx = style.gap.roundToPx()
-    val outerPx = style.outerPadding.roundToPx()
+    val keyPx = keySize.roundToPx()
+    val gapPx = gap.roundToPx()
+    val outerPx = outerPadding.roundToPx()
     val step = keyPx + gapPx
     val placeables = measurables.map { it.measure(Constraints.fixed(keyPx, keyPx)) }
     val width = keysPerRow * keyPx + (keysPerRow - 1) * gapPx + outerPx * 2

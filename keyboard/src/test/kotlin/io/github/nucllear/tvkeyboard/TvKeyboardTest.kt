@@ -3,6 +3,7 @@ package io.github.nucllear.tvkeyboard
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -10,6 +11,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.isFocused
@@ -45,7 +48,7 @@ class TvKeyboardTest {
   fun `types with the remote and erases with backspace`() {
     var text = ""
     compose.setContent {
-      TvKeyboard(onCharacter = { text += it }, onBackspace = { text = text.dropLast(1) })
+      TestKeyboard(onCharacter = { text += it }, onBackspace = { text = text.dropLast(1) })
     }
     awaitKeys()
     compose.onNodeWithText("a").assertIsFocused()
@@ -67,7 +70,7 @@ class TvKeyboardTest {
     compose.setContent {
       Surface(modifier = Modifier.fillMaxSize(), shape = RectangleShape) {
         Row {
-          Column { TvKeyboard(onCharacter = {}, onBackspace = {}) }
+          Column { TestKeyboard(onCharacter = {}, onBackspace = {}) }
         }
       }
     }
@@ -79,7 +82,7 @@ class TvKeyboardTest {
   fun `the switch key changes the layout and keeps focus`() {
     var text = ""
     compose.setContent {
-      TvKeyboard(
+      TestKeyboard(
         onCharacter = { text += it },
         onBackspace = {},
         layouts = listOf(KeyboardLayouts.Ukrainian, KeyboardLayouts.Latin),
@@ -98,7 +101,7 @@ class TvKeyboardTest {
     compose.setContent {
       var typed by remember { mutableStateOf("") }
       Row {
-        TvKeyboard(onCharacter = { typed += it }, onBackspace = {}, space = false)
+        TestKeyboard(onCharacter = { typed += it }, onBackspace = {}, space = false)
         Button(onClick = {}) { Text("Result") }
       }
     }
@@ -111,5 +114,23 @@ class TvKeyboardTest {
     compose.onNodeWithText("Result").assertIsFocused()
     compose.onRoot().performKeyInput { pressKey(Key.DirectionLeft) }
     compose.onNodeWithText("n").assertIsFocused()
+  }
+}
+
+// the keys a test needs: focusable, clickable, findable by label, backspace by its description
+@Composable
+private fun TestKeyboard(
+  onCharacter: (String) -> Unit,
+  onBackspace: () -> Unit,
+  layouts: List<KeyboardLayout> = listOf(KeyboardLayouts.Latin),
+  space: Boolean = true,
+) {
+  TvKeyboard(onCharacter = onCharacter, onBackspace = onBackspace, layouts = layouts, space = space) { key, onClick, modifier ->
+    Surface(
+      onClick = onClick,
+      modifier = modifier.semantics { if (key.type == KeyType.Backspace) contentDescription = "Backspace" },
+    ) {
+      Text(key.label)
+    }
   }
 }
