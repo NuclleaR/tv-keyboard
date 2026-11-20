@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.tv.material3.Surface
@@ -60,14 +61,6 @@ public fun TvKeyboard(
   LaunchedEffect(layout) {
     keys = withContext(Dispatchers.Default) { layout.keys }
   }
-  // only on the first arrival: a later one means the viewer pressed the switch key and stands on it
-  LaunchedEffect(keys) {
-    if (!focusPlaced && keys.isNotEmpty()) {
-      focusPlaced = true
-      firstKey.requestFocus()
-    }
-  }
-
   val next = if (layouts.size > 1) layouts[(layoutIndex + 1) % layouts.size] else null
   val functional = remember(next, space, keysPerRow) { functionalKeys(next, space, keysPerRow) }
   Column(
@@ -84,7 +77,18 @@ public fun TvKeyboard(
         key = key,
         style = style,
         onClick = { onCharacter(key.value) },
-        modifier = if (index == 0) Modifier.focusRequester(firstKey) else Modifier,
+        // focus goes to the first key once it is placed: a request before that, e.g. from an effect right after the
+        // keys arrive, is dropped. Only the first time: a later arrival means the viewer pressed the switch key
+        modifier = if (index == 0) {
+          Modifier.focusRequester(firstKey).onGloballyPositioned {
+            if (!focusPlaced) {
+              focusPlaced = true
+              firstKey.requestFocus()
+            }
+          }
+        } else {
+          Modifier
+        },
       )
     }
     Row(

@@ -28,7 +28,7 @@ import androidx.tv.material3.MaterialTheme
 public class KeyboardStyle(
   public val keySize: Dp,
   public val gap: Dp,
-  /** Room around the grid for the focus ring and scale of the outer keys, which have no gap to borrow from. */
+  /** Room around the grid for the focus ring (4dp) and scale of the outer keys, which have no gap to borrow from. */
   public val outerPadding: Dp,
   public val shape: ClickableSurfaceShape,
   public val colors: ClickableSurfaceColors,
@@ -66,7 +66,8 @@ public object KeyboardDefaults {
     )
     val scale = ClickableSurfaceDefaults.scale(focusedScale = focusedScale)
     val border = ClickableSurfaceDefaults.border(
-      focusedBorder = Border(BorderStroke(2.dp, ringColor), inset = 0.dp, shape = shape),
+      // 2dp wide, 2dp outside the key: the inset moves the stroke's center out of the edge
+      focusedBorder = Border(BorderStroke(2.dp, ringColor), inset = 3.dp, shape = shape),
     )
     val glow = ClickableSurfaceDefaults.glow()
     return remember(keySize, gap, outerPadding, clickableShape, colors, scale, border, glow, textStyle) {

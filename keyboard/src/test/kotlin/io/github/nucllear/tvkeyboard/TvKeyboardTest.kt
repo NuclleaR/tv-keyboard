@@ -1,10 +1,14 @@
 package io.github.nucllear.tvkeyboard
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
@@ -18,6 +22,7 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.tv.material3.Button
+import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -54,6 +59,20 @@ class TvKeyboardTest {
     compose.onNodeWithContentDescription("Backspace").requestFocus().performKeyInput { pressKey(Key.DirectionCenter) }
     compose.waitForIdle()
     assertEquals("a", text)
+  }
+
+  // a screen around the keyboard delayed its layout past the moment focus was requested, and no key got focus
+  @Test
+  fun `takes focus inside a screen surface`() {
+    compose.setContent {
+      Surface(modifier = Modifier.fillMaxSize(), shape = RectangleShape) {
+        Row {
+          Column { TvKeyboard(onCharacter = {}, onBackspace = {}) }
+        }
+      }
+    }
+    awaitKeys()
+    compose.onNodeWithText("a").assertIsFocused()
   }
 
   @Test
