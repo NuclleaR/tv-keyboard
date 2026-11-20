@@ -1,5 +1,7 @@
 # tv-keyboard
 
+[![](https://jitpack.io/v/NuclleaR/tv-keyboard.svg)](https://jitpack.io/#NuclleaR/tv-keyboard)
+
 An on-screen keyboard for Android TV in Jetpack Compose (TV Material 3), driven by the remote.
 
 - Alphabetical grid: with arrows the viewer can predict where a letter is.
